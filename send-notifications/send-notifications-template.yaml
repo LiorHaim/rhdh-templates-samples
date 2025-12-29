@@ -16,10 +16,6 @@ spec:
 
   parameters:
     - title: Notification Details
-      # Permission tag for RBAC conditional policies
-      backstage:permissions:
-        tags:
-          - admin
       required:
         - title
         - message
@@ -55,10 +51,6 @@ spec:
           description: Optional URL to link to (e.g., /catalog or https://example.com)
 
     - title: Recipients
-      # Permission tag for RBAC conditional policies
-      backstage:permissions:
-        tags:
-          - admin
       required:
         - recipientType
       properties:

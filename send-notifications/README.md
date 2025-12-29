@@ -1,123 +1,71 @@
-# Hiding Admin-Only Templates from Developers with RBAC Conditional Policies
+# Send Notification Template
 
-This example demonstrates how to use **RBAC Conditional Policies** in Red Hat Developer Hub (RHDH) / Backstage to hide specific templates from non-admin users.
+A Red Hat Developer Hub (RHDH) Scaffolder template that allows administrators to send notifications to users.
 
-## Overview
+## What It Does
 
-Sometimes you have Scaffolder templates that should only be visible to administrators—such as templates for sending notifications, managing infrastructure, or other privileged operations. This pattern uses:
+This template provides a simple interface for sending notifications through RHDH's notification system. Administrators can:
 
-1. **A tag on the template** (`admin`) to mark it as admin-only
-2. **An RBAC conditional policy** that prevents developers from seeing templates with that tag
+- **Send broadcast notifications** to all users
+- **Target specific groups** (e.g., `group:default/developers`)
+- **Target individual users** (e.g., `user:default/lior`)
+
+### Notification Options
+
+| Field | Description |
+|-------|-------------|
+| **Title** | The notification title displayed to recipients |
+| **Message** | The notification body text |
+| **Severity** | Priority level: Low, Normal, High, or Critical |
+| **Link** | Optional URL to include (internal path or external URL) |
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `rbac-conditional-policies.yaml` | RBAC rule that hides admin-tagged templates from developers |
-| `send-notification-template.yaml` | Example admin-only template for sending notifications |
+| `send-notification-template.yaml` | The Scaffolder template definition |
+| `rbac-conditional-policies.yaml` | RBAC policy to restrict visibility to admins |
 
-## How It Works
+## Required Plugins
 
-### 1. Tag Your Admin-Only Template
+Enable the following dynamic plugins in your RHDH configuration:
 
-In your template's `metadata.tags`, include the `admin` tag:
+| Plugin | Purpose |
+|--------|---------|
+| `@red-hat-developer-hub/backstage-plugin-notifications` | Frontend notification UI |
+| `@red-hat-developer-hub/backstage-plugin-notifications-backend-dynamic` | Backend notifications API (`/notifications`) |
+| `@red-hat-developer-hub/backstage-plugin-scaffolder-backend-module-http-request-dynamic` | Enables the `http:backstage:request` action used by the template |
+| `@red-hat-developer-hub/backstage-plugin-rbac` | RBAC frontend (for admin-only visibility) |
+| `@red-hat-developer-hub/backstage-plugin-rbac-backend-dynamic` | RBAC backend with conditional policies support |
 
-```yaml
-apiVersion: scaffolder.backstage.io/v1beta3
-kind: Template
-metadata:
-  name: send-notification
-  title: Send Notification
-  description: Send a notification to all users or a specific group (Administrators only)
-  tags:
-    - utility
-    - notifications
-    - admin  # <-- This tag marks it as admin-only
-```
+## Usage
 
-### 2. Create the RBAC Conditional Policy
+1. Register the template in your catalog
+2. Navigate to **Create** in RHDH
+3. Select "Send Notification"
+4. Fill in the notification details and choose recipients
+5. Execute the template
 
-The conditional policy uses a `not` + `allOf` rule to say:
+## Hiding from Non-Administrators
 
-> "Developers can read catalog entities, **unless** it's a Template **and** it has the `admin` tag."
+This template is tagged with `admin` in its metadata, which can be used with an RBAC conditional policy to hide it from developers.
 
-```yaml
-result: CONDITIONAL
-roleEntityRef: role:default/developers
-pluginId: catalog
-resourceType: catalog-entity
-permissionMapping:
-  - read
-conditions:
-  not:
-    allOf:
-      - rule: IS_ENTITY_KIND
-        resourceType: catalog-entity
-        params:
-          kinds:
-            - Template
-      - rule: HAS_METADATA
-        resourceType: catalog-entity
-        params:
-          key: tags
-          value: admin
-```
+The included `rbac-conditional-policies.yaml` prevents users in `role:default/developers` from seeing any template tagged with `admin`. To use it:
 
-### 3. Configure RHDH to Load the Conditional Policy
-
-In your `app-config.yaml`, ensure the RBAC plugin is configured to load the conditional policies file:
+1. Load the conditional policy in your `app-config.yaml`:
 
 ```yaml
 permission:
   enabled: true
   rbac:
-    policies-csv-file: /path/to/rbac-policy.csv
     conditional-policies-file: /path/to/rbac-conditional-policies.yaml
 ```
 
-### 4. Assign Users to the Developers Role
-
-In your `rbac-policy.csv`, assign users or groups to the `role:default/developers` role:
+2. Assign non-admin users to the developers role in your `rbac-policy.csv`:
 
 ```csv
 g, user:default/developer1, role:default/developers
 g, group:default/engineering, role:default/developers
 ```
 
-## Result
-
-- **Admins** (not in the developers role, or with broader permissions) can see and use the "Send Notification" template
-- **Developers** will not see admin-tagged templates in the catalog or template list
-
-## Additional Tips
-
-### Step-Level Permission Tags
-
-You can also add permission tags at the parameter step level for additional control:
-
-```yaml
-parameters:
-  - title: Notification Details
-    backstage:permissions:
-      tags:
-        - admin
-    properties:
-      # ...
-```
-
-### Multiple Admin Templates
-
-Any template with the `admin` tag will be hidden from developers. Simply add the tag to any template you want to restrict:
-
-```yaml
-metadata:
-  tags:
-    - admin
-```
-
-## References
-
-- [RHDH RBAC Documentation](https://docs.redhat.com/en/documentation/red_hat_developer_hub/)
-- [Backstage Permissions Framework](https://backstage.io/docs/permissions/overview)
-- [Conditional Policies in RHDH](https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.4/html/authorization/con-rbac-conditional-policies-rhdh_title-authorization)
-
+Admins who are not in the developers role (or have broader permissions) will still see and use the template.

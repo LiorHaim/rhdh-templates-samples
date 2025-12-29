@@ -1,0 +1,22 @@
+# Hide admin-tagged Templates from developers in the catalog
+# Developers can read catalog entities ONLY IF:
+# - It's NOT a Template with 'admin' tag
+result: CONDITIONAL
+roleEntityRef: role:default/developers
+pluginId: catalog
+resourceType: catalog-entity
+permissionMapping:
+  - read
+conditions:
+  not:
+    allOf:
+      - rule: IS_ENTITY_KIND
+        resourceType: catalog-entity
+        params:
+          kinds:
+            - Template
+      - rule: HAS_METADATA
+        resourceType: catalog-entity
+        params:
+          key: tags
+          value: admin

@@ -1,0 +1,82 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.componentName }}
+  title: ${{ values.componentName }}
+  {%- if values.description %}
+  description: ${{ values.description }}
+  {%- endif %}
+  annotations:
+    # GitLab Integration
+    gitlab.com/project-slug: ${{ values.repoSlug }}
+    
+    # Kubernetes Integration
+    {%- if values.kubernetesId %}
+    backstage.io/kubernetes-id: ${{ values.kubernetesId }}
+    {%- endif %}
+
+    # Jira Integration
+    {%- if values.jiraProjectKey %}
+    jira/project-key: ${{ values.jiraProjectKey }}
+    {%- endif %}
+
+    # JFrog Artifactory Integration
+    {%- if values.jfrogImage %}
+    jfrog-artifactory/image-name: ${{ values.jfrogImage }}
+    {%- endif %}
+
+    # ArgoCD Integration
+    {%- if values.argocdAppName %}
+    argocd/app-name: ${{ values.argocdAppName }}
+    {%- endif %}
+    {%- if values.argocdAppSelector %}
+    argocd/app-selector: ${{ values.argocdAppSelector }}
+    {%- endif %}
+  
+  tags:
+    - on-boarded
+    {%- if values.tags %}
+    {%- for tag in values.tags %}
+    - ${{ tag }}
+    {%- endfor %}
+    {%- endif %}
+
+spec:
+  type: service
+  lifecycle: ${{ values.lifecycle }}
+  owner: ${{ values.owner }}
+  {%- if values.system %}
+  system: ${{ values.system }}
+  {%- endif %}
+
+  {%- if values.registerApi %}
+  providesApis:
+    - ${{ values.componentName }}-api
+  {%- endif %}
+
+{% if values.registerApi -%}
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{ values.componentName }}-api
+  title: ${{ values.componentName }} API
+  description: API definition for ${{ values.componentName }}
+  tags:
+    - on-boarded
+    {%- if values.tags %}
+    {%- for tag in values.tags %}
+    - ${{ tag }}
+    {%- endfor %}
+    {%- endif %}
+    
+spec:
+  type: ${{ values.apiType }}
+  lifecycle: ${{ values.lifecycle }}
+  owner: ${{ values.owner }}
+  {%- if values.system %}
+  system: ${{ values.system }}
+  {%- endif %}
+  definition:
+    $text: ${{ values.apiPath }}
+{%- endif %}

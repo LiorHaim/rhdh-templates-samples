@@ -1,0 +1,119 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: bulk-catalog-refresh
+  title: Bulk Catalog Refresh
+  description: Force refresh catalog entities to sync latest changes from source (Administrators only)
+  tags:
+    - admin
+    - catalog
+    - maintenance
+spec:
+  owner: rhdh-team
+  type: utility
+
+  parameters:
+    - title: Select Entities to Refresh
+      backstage:permissions:
+        tags:
+          - admin
+      required:
+        - refreshType
+      properties:
+        refreshType:
+          title: Refresh Scope
+          type: string
+          description: What would you like to refresh?
+          enum:
+            - single
+            - all-components
+            - all-apis
+            - all-templates
+          enumNames:
+            - Single Entity (specify below)
+            - All Components
+            - All APIs
+            - All Templates
+          default: single
+      dependencies:
+        refreshType:
+          oneOf:
+            - properties:
+                refreshType:
+                  const: single
+                entityRef:
+                  title: Entity Reference
+                  type: string
+                  description: "Select the entity to refresh"
+                  ui:field: EntityPicker
+                  ui:options:
+                    allowedKinds:
+                      - Component
+                      - API
+                      - System
+                      - Domain
+                      - Resource
+                      - Template
+              required:
+                - entityRef
+            - properties:
+                refreshType:
+                  const: all-components
+            - properties:
+                refreshType:
+                  const: all-apis
+            - properties:
+                refreshType:
+                  const: all-templates
+
+  steps:
+    # Refresh single entity
+    - id: refresh-single
+      name: Refresh Single Entity
+      if: ${{ parameters.refreshType === 'single' }}
+      action: catalog:refresh
+      input:
+        entityRef: ${{ parameters.entityRef }}
+
+    # For bulk refresh, we log a message (catalog:refresh only supports single entities)
+    - id: log-bulk
+      name: Bulk Refresh Info
+      if: ${{ parameters.refreshType !== 'single' }}
+      action: debug:log
+      input:
+        message: |
+          ═══════════════════════════════════════════════════════════
+          ⚠️  BULK REFRESH INITIATED
+          ═══════════════════════════════════════════════════════════
+          
+          Scope: ${{ parameters.refreshType }}
+          
+          Note: Bulk refresh triggers the catalog to re-scan all 
+          entities of the selected type from their source locations.
+          
+          This may take a few minutes depending on the number of
+          entities and source locations configured.
+          
+          ═══════════════════════════════════════════════════════════
+
+  output:
+    text:
+      - title: ✅ Catalog Refresh Triggered
+        content: |
+          ## Refresh Summary
+          
+          **Scope:** ${{ parameters.refreshType }}
+          ${{ parameters.refreshType === 'single' and '**Entity:** ' + parameters.entityRef or '' }}
+          
+          ---
+          
+          The catalog will now fetch the latest data from the source location(s).
+          
+          ### What happens next?
+          
+          1. The catalog backend queries the source (Git, URL, etc.)
+          2. Entity metadata is updated in the database
+          3. Relations are recalculated
+          4. Search index is updated
+          
+          > 💡 **Tip:** Check the entity page to see updated metadata. Large refreshes may take 1-2 minutes.

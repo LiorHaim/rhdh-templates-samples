@@ -1,0 +1,237 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: onboard-existing-service
+  title: Onboard Existing Service
+  description: Add a catalog-info.yaml to an existing GitLab repository to register it in RHDH.
+  tags:
+    - recommended
+    - gitlab
+    - onboarding
+spec:
+  owner: rhdh-team
+  type: service
+
+  parameters:
+    - title: Service Details
+      required:
+        - componentName
+        - owner
+        - lifecycle
+      properties:
+        componentName:
+          title: Component Name
+          type: string
+          description: Unique name for this service in the catalog (e.g. 'payment-service').
+          ui:autofocus: true
+          maxLength: 40
+          # Enforce K8s-style naming
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          ui:help: "Must be lowercase, alphanumeric, with dashes only. Max 40 characters."
+        
+        description:
+          title: Description
+          type: string
+          description: A short description of what this service does.
+          maxLength: 150
+          ui:widget: textarea
+          ui:help: "Keep it under 150 characters for better visibility in the Catalog."
+        
+        owner:
+          title: Owner
+          type: string
+          description: The team responsible for this service.
+          ui:field: MyGroupsPicker
+          ui:options:
+            catalogFilter:
+              kind: [Group]
+
+        system:
+          title: System
+          type: string
+          description: The system this component belongs to.
+          ui:field: OwnedEntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
+
+        lifecycle:
+          title: Lifecycle
+          type: string
+          description: The current lifecycle state of the component.
+          default: production
+          enum:
+            - production
+            - experimental
+            - deprecated
+
+        tags:
+          title: Tags
+          type: array
+          description: Add tags to categorize this service.
+          ui:field: EntityTagsPicker
+          ui:options:
+            showCounts: true
+          items:
+            type: string
+
+    - title: Repository Location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          description: Select the GitLab repository to onboard.
+          #ui:field: RepoUrlPicker
+          ui:field: GitLabGroupPicker
+          ui:options:
+            allowedHosts:
+              - gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+          ui:help: "Owner is the Group or Username (e.g. 'my-org'). Repository is the project name (e.g. 'service-a')."
+
+    - title: API Configuration (Optional)
+      properties:
+        registerApi:
+          title: Register API?
+          type: boolean
+          default: false
+          description: "Check this if your service exposes an API (OpenAPI, GraphQL, etc.) you want to register in RHDH."
+        
+        apiType:
+          title: API Type
+          type: string
+          default: openapi
+          enum:
+            - openapi
+            - asyncapi
+            - graphql
+            - grpc
+          description: "The type of API definition."
+        
+        apiPath:
+          title: API Definition Path
+          type: string
+          description: "Path to the API definition file in your repo (e.g., openapi/spec.yaml)."
+          ui:help: "Relative path from the repository root to your spec file."
+
+      dependencies:
+        registerApi:
+          oneOf:
+            - properties:
+                registerApi:
+                  const: false
+            - properties:
+                registerApi:
+                  const: true
+              required:
+                - apiType
+                - apiPath
+
+    - title: Integrations (Optional)
+      properties:
+        kubernetesId:
+          title: OpenShift Resources (Label Selector)
+          type: string
+          description: "Links this component to OpenShift resources via the 'backstage.io/kubernetes-id' label."
+          ui:help: |
+             Enter the label value used on your OpenShift resources.
+             Example: If your Deployment has `labels: { 'backstage.io/kubernetes-id': 'my-app' }`, enter `my-app` here.
+        
+        jiraProjectKey:
+          title: Jira Project Key
+          type: string
+          description: Link to Jira Board.
+          ui:help: "The Project Key found in your Jira URL (e.g. for `jira.com/projects/PROJ`, enter `PROJ`)."
+        
+        jfrogImage:
+          title: JFrog Artifactory Image
+          type: string
+          description: Link to Container Images.
+          ui:help: "The full path to your image repository (e.g. `docker-local/my-org/my-service`)."
+
+        argocdAppName:
+          title: ArgoCD Application Name
+          type: string
+          description: Link via Application Name.
+          ui:help: "Use this if your app has a unique name in ArgoCD."
+
+        argocdAppSelector:
+          title: ArgoCD App Selector
+          type: string
+          description: Link via Label Selector.
+          ui:help: "Use this to match multiple apps (e.g. `app.kubernetes.io/name=my-service`)."
+
+  steps:
+    - id: fetch-base
+      name: Render Catalog Info
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          componentName: ${{ parameters.componentName }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          system: ${{ parameters.system }}
+          tags: ${{ parameters.tags }}
+          lifecycle: ${{ parameters.lifecycle }}
+          repoUrl: ${{ parameters.repoUrl }}
+          
+         
+          
+          # Remove the host part and get the slug
+          repoSlug: ${{ parameters.repoUrl | replace("gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io?owner=", "") | replace("&repo=", "/") }}
+          
+          # API Configuration
+          registerApi: ${{ parameters.registerApi }}
+          apiType: ${{ parameters.apiType }}
+          apiPath: ${{ parameters.apiPath }}
+          # Logic: Pass the raw value. If empty, the skeleton will skip the annotation.
+          kubernetesId: ${{ parameters.kubernetesId }}
+          jiraProjectKey: ${{ parameters.jiraProjectKey }}
+          jfrogImage: ${{ parameters.jfrogImage }}
+          argocdAppName: ${{ parameters.argocdAppName }}
+          argocdAppSelector: ${{ parameters.argocdAppSelector }}
+
+    - id: create-mr
+      name: Create Merge Request
+      action: publish:gitlab:merge-request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        branchName: rhdh-onboarding-${{ parameters.componentName }}
+        title: "RHDH Onboarding: Add catalog-info.yaml"
+        description: |
+          This MR adds the `catalog-info.yaml` file to onboard this service to Red Hat Developer Hub.
+          
+          **Configuration:**
+          - **Component:** `${{ parameters.componentName }}`
+          - **Owner:** `${{ parameters.owner }}`
+          - **System:** `${{ parameters.system if parameters.system else "None" }}`
+          - **Lifecycle:** `${{ parameters.lifecycle }}`
+          - **Tags:** `${{ parameters.tags | join(', ') if parameters.tags else "None" }}`
+          
+          **API:**
+          - Register API: `${{ "Yes" if parameters.registerApi else "No" }}`
+          ${{ "- Type: " + parameters.apiType + "\n          - Path: " + parameters.apiPath if parameters.registerApi else "" }}
+          **Integrations:**
+          - **OpenShift Resources:** `${{ parameters.kubernetesId if parameters.kubernetesId else "N/A" }}`
+          - **Jira:** `${{ parameters.jiraProjectKey if parameters.jiraProjectKey else "N/A" }}`
+          - **JFrog:** `${{ parameters.jfrogImage if parameters.jfrogImage else "N/A" }}`
+          - **ArgoCD App:** `${{ parameters.argocdAppName if parameters.argocdAppName else "N/A" }}`
+          - **ArgoCD Selector:** `${{ parameters.argocdAppSelector if parameters.argocdAppSelector else "N/A" }}`
+          
+          **Next Steps:**
+          1. Review the changes.
+          2. Merge this request.
+          3. Verify the service appears in RHDH.
+
+  output:
+    links:
+      - title: Open Merge Request
+        url: ${{ steps['create-mr'].output.mergeRequestUrl }}
+      - title: Open Repository
+        url: https://${{ parameters.repoUrl | replace("?owner=", "/") | replace("&repo=", "/") }}
+      - title: Back to Catalog
+        url: /catalog

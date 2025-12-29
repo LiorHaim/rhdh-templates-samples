@@ -38,6 +38,24 @@ Enable the following dynamic plugins in your RHDH configuration:
 | `@red-hat-developer-hub/backstage-plugin-rbac` | RBAC frontend (for admin-only visibility) |
 | `@red-hat-developer-hub/backstage-plugin-rbac-backend-dynamic` | RBAC backend with conditional policies support |
 
+## Authentication Token
+
+The template uses a hardcoded Bearer token to authenticate with the notifications API. This token must match the one configured in your `app-config.yaml`:
+
+```yaml
+notifications:
+  externalCallerSecret: my-secret-token-12345
+```
+
+The template sends this token in the `Authorization` header:
+
+```yaml
+headers:
+  Authorization: Bearer my-secret-token-12345
+```
+
+> **Note:** For production, use a more secure token and consider storing it as a secret/environment variable.
+
 ## Usage
 
 1. Register the template in your catalog

@@ -1,0 +1,184 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: send-notification
+  title: Send Notification
+  description: Send a notification to all users or a specific group (Administrators only)
+  annotations:
+    backstage.io/template-access: admin
+  tags:
+    - utility
+    - notifications
+    - admin
+spec:
+  owner: rhdh-team
+  type: utility
+
+  parameters:
+    - title: Notification Details
+      # Permission tag for RBAC conditional policies
+      backstage:permissions:
+        tags:
+          - admin
+      required:
+        - title
+        - message
+        - severity
+      properties:
+        title:
+          title: Notification Title
+          type: string
+          description: The title of the notification
+        message:
+          title: Message
+          type: string
+          description: The notification message body
+          ui:widget: textarea
+        severity:
+          title: Severity
+          type: string
+          description: How important is this notification?
+          enum:
+            - low
+            - normal
+            - high
+            - critical
+          enumNames:
+            - Low (Informational)
+            - Normal
+            - High (Important)
+            - Critical (Urgent)
+          default: normal
+        link:
+          title: Link (Optional)
+          type: string
+          description: Optional URL to link to (e.g., /catalog or https://example.com)
+
+    - title: Recipients
+      # Permission tag for RBAC conditional policies
+      backstage:permissions:
+        tags:
+          - admin
+      required:
+        - recipientType
+      properties:
+        recipientType:
+          title: Send To
+          type: string
+          description: Who should receive this notification?
+          enum:
+            - broadcast
+            - group
+            - user
+          enumNames:
+            - Everyone (Broadcast)
+            - Specific Group
+            - Specific User
+          default: broadcast
+      dependencies:
+        recipientType:
+          oneOf:
+            - properties:
+                recipientType:
+                  const: broadcast
+            - properties:
+                recipientType:
+                  const: group
+                groupName:
+                  title: Group Name
+                  type: string
+                  description: "Group entity ref (e.g., group:default/developers)"
+                  ui:field: EntityPicker
+                  ui:options:
+                    allowedKinds:
+                      - Group
+                    defaultKind: Group
+              required:
+                - groupName
+            - properties:
+                recipientType:
+                  const: user
+                userName:
+                  title: User Name
+                  type: string
+                  description: "User entity ref (e.g., user:default/lior)"
+                  ui:field: EntityPicker
+                  ui:options:
+                    allowedKinds:
+                      - User
+                    defaultKind: User
+              required:
+                - userName
+
+  steps:
+    # Step for Broadcast
+    - id: send-broadcast
+      name: Send Broadcast Notification
+      if: ${{ parameters.recipientType === 'broadcast' }}
+      action: http:backstage:request
+      input:
+        method: POST
+        path: /notifications
+        headers:
+          Content-Type: application/json
+          Authorization: Bearer my-secret-token-12345
+        body:
+          recipients:
+            type: broadcast
+          payload:
+            title: ${{ parameters.title }}
+            description: ${{ parameters.message }}
+            severity: ${{ parameters.severity }}
+            link: ${{ parameters.link }}
+
+    # Step for Group
+    - id: send-to-group
+      name: Send Notification to Group
+      if: ${{ parameters.recipientType === 'group' }}
+      action: http:backstage:request
+      input:
+        method: POST
+        path: /notifications
+        headers:
+          Content-Type: application/json
+          Authorization: Bearer my-secret-token-12345
+        body:
+          recipients:
+            type: entity
+            entityRef: ${{ parameters.groupName }}
+          payload:
+            title: ${{ parameters.title }}
+            description: ${{ parameters.message }}
+            severity: ${{ parameters.severity }}
+            link: ${{ parameters.link }}
+
+    # Step for User
+    - id: send-to-user
+      name: Send Notification to User
+      if: ${{ parameters.recipientType === 'user' }}
+      action: http:backstage:request
+      input:
+        method: POST
+        path: /notifications
+        headers:
+          Content-Type: application/json
+          Authorization: Bearer my-secret-token-12345
+        body:
+          recipients:
+            type: entity
+            entityRef: ${{ parameters.userName }}
+          payload:
+            title: ${{ parameters.title }}
+            description: ${{ parameters.message }}
+            severity: ${{ parameters.severity }}
+            link: ${{ parameters.link }}
+
+  output:
+    text:
+      - title: Notification Sent!
+        content: |
+          **${{ parameters.title }}** was sent successfully.
+          
+          - **Recipient**: ${{ parameters.recipientType === 'broadcast' and 'Everyone' or parameters.recipientType === 'group' and parameters.groupName or parameters.userName }}
+          - **Severity**: ${{ parameters.severity }}
+

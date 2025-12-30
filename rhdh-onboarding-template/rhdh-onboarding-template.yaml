@@ -84,7 +84,7 @@ spec:
           type: string
           description: Select the GitLab repository to onboard.
           #ui:field: RepoUrlPicker
-          ui:field: GitLabGroupPicker
+          ui:field: GitLabGroupPicker ## USE THE GitLab Group Picker Plugin - https://github.com/LiorHaim/gitlab-fe-selector
           ui:options:
             allowedHosts:
               - gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io

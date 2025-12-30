@@ -99,24 +99,8 @@ spec:
           type: boolean
           default: false
           description: "Check this if your service exposes an API (OpenAPI, GraphQL, etc.) you want to register in RHDH."
-        
-        apiType:
-          title: API Type
-          type: string
-          default: openapi
-          enum:
-            - openapi
-            - asyncapi
-            - graphql
-            - grpc
-          description: "The type of API definition."
-        
-        apiPath:
-          title: API Definition Path
-          type: string
-          description: "Path to the API definition file in your repo (e.g., openapi/spec.yaml)."
-          ui:help: "Relative path from the repository root to your spec file."
 
+      # Only show API fields when registerApi is checked
       dependencies:
         registerApi:
           oneOf:
@@ -126,6 +110,22 @@ spec:
             - properties:
                 registerApi:
                   const: true
+                apiType:
+                  title: API Type
+                  type: string
+                  default: openapi
+                  enum:
+                    - openapi
+                    - asyncapi
+                    - graphql
+                    - grpc
+                  description: "The type of API definition."
+                apiPath:
+                  title: API Definition Path
+                  type: string
+                  description: "Path to the API definition file in your repo (e.g., openapi/spec.yaml)."
+                  pattern: '^[^/].*\.(yaml|yml|json|graphql|proto)$'
+                  ui:help: "Relative path, no leading slash (e.g., api/openapi.yaml)"
               required:
                 - apiType
                 - apiPath

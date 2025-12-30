@@ -42,7 +42,7 @@ metadata:
     {%- endif %}
 
 spec:
-  type: service
+  type: ${{ values.componentType }}
   lifecycle: ${{ values.lifecycle }}
   owner: ${{ values.owner }}
   {%- if values.system %}

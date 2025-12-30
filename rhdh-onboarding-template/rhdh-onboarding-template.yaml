@@ -13,9 +13,10 @@ spec:
   type: service
 
   parameters:
-    - title: Service Details
+    - title: Component Details
       required:
         - componentName
+        - componentType
         - owner
         - lifecycle
       properties:
@@ -54,6 +55,20 @@ spec:
           ui:options:
             catalogFilter:
               kind: System
+
+        componentType:
+          title: Component Type
+          type: string
+          description: The type of component being onboarded.
+          default: service
+          enum:
+            - service
+            - website
+            - library
+          enumNames:
+            - Service (backend API, microservice)
+            - Website (frontend application)
+            - Library (shared package/module)
 
         lifecycle:
           title: Lifecycle
@@ -178,12 +193,9 @@ spec:
           tags: ${{ parameters.tags }}
           lifecycle: ${{ parameters.lifecycle }}
           repoUrl: ${{ parameters.repoUrl }}
-          
-         
-          
+          componentType: ${{ parameters.componentType }}
           # Remove the host part and get the slug
           repoSlug: ${{ parameters.repoUrl | replace("gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io?owner=", "") | replace("&repo=", "/") }}
-          
           # API Configuration
           registerApi: ${{ parameters.registerApi }}
           apiType: ${{ parameters.apiType }}
@@ -207,6 +219,7 @@ spec:
           
           **Configuration:**
           - **Component:** `${{ parameters.componentName }}`
+          - **Type:** `${{ parameters.componentType }}`
           - **Owner:** `${{ parameters.owner }}`
           - **System:** `${{ parameters.system if parameters.system else "None" }}`
           - **Lifecycle:** `${{ parameters.lifecycle }}`

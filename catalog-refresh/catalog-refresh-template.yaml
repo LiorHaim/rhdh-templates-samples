@@ -67,15 +67,20 @@ spec:
                   const: all-templates
 
   steps:
-    # Refresh single entity
+    # Refresh single entity using Catalog API
     - id: refresh-single
       name: Refresh Single Entity
       if: ${{ parameters.refreshType === 'single' }}
-      action: catalog:refresh
+      action: http:backstage:request
       input:
-        entityRef: ${{ parameters.entityRef }}
+        method: POST
+        path: /catalog/refresh
+        headers:
+          Content-Type: application/json
+        body:
+          entityRef: ${{ parameters.entityRef }}
 
-    # For bulk refresh, we log a message (catalog:refresh only supports single entities)
+    # For bulk refresh, we log a message (the catalog API only supports single entity refresh)
     - id: log-bulk
       name: Bulk Refresh Info
       if: ${{ parameters.refreshType !== 'single' }}

@@ -12,16 +12,16 @@ theme:
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: ${{ values.primaryColor }}
-      accent: ${{ values.primaryColor }}
+      primary: indigo
+      accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: ${{ values.primaryColor }}
-      accent: ${{ values.primaryColor }}
+      primary: indigo
+      accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -63,4 +63,3 @@ nav:
 {%- if values.includeChangelog %}
   - Changelog: changelog.md
 {%- endif %}
-

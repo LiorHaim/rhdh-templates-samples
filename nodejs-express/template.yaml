@@ -1,0 +1,154 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: nodejs-express-service
+  title: Node.js Express API
+  description: |
+    Create a production-ready Node.js Express API with TypeScript, GitLab CI/CD pipeline,
+    Helm chart for Kubernetes/OpenShift deployment, and Backstage catalog integration.
+    
+    Container images are automatically built and pushed to GitLab's internal container registry.
+  tags:
+    - nodejs
+    - express
+    - typescript
+    - microservice
+    - recommended
+  links:
+    - url: https://expressjs.com/
+      title: Express.js Documentation
+      icon: docs
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Service Information
+      required:
+        - name
+        - description
+        - owner
+      properties:
+        name:
+          title: Service Name
+          type: string
+          description: Unique name for the service (lowercase, hyphenated)
+          pattern: '^[a-z][a-z0-9-]*$'
+          ui:autofocus: true
+          ui:options:
+            rows: 1
+        description:
+          title: Description
+          type: string
+          description: A brief description of what this service does
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        owner:
+          title: Owner
+          type: string
+          description: Select the team that will own this service
+          ui:field: MyGroupsPicker
+
+    - title: Repository Configuration
+      required:
+        - gitlabGroup
+      properties:
+        gitlabGroup:
+          title: GitLab Group
+          type: string
+          description: Select the GitLab group where the repository will be created
+          # NOTE: Update these to match your GitLab groups
+          enum:
+            - development
+            - rhdh-qe
+          enumNames:
+            - development
+            - rhdh-qe
+
+    - title: Technical Configuration
+      required:
+        - nodeVersion
+      properties:
+        nodeVersion:
+          title: Node.js Version
+          type: string
+          description: Select the Node.js version for this service
+          enum:
+            - '18'
+            - '20'
+            - '22'
+          enumNames:
+            - Node.js 18 (LTS)
+            - Node.js 20 (Current LTS)
+            - Node.js 22 (Latest)
+          default: '20'
+        targetNamespace:
+          title: Target Namespace
+          type: string
+          description: Kubernetes/OpenShift namespace for deployment (optional)
+          default: ''
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          nodeVersion: ${{ parameters.nodeVersion }}
+          targetNamespace: ${{ parameters.targetNamespace }}
+          repoOwner: ${{ parameters.gitlabGroup }}
+          repoName: ${{ parameters.name }}
+
+    - id: publish
+      name: Publish to GitLab
+      action: publish:gitlab
+      input:
+        # NOTE: Change the host to your GitLab instance URL
+        repoUrl: gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io?owner=${{ parameters.gitlabGroup }}&repo=${{ parameters.name }}
+        repoVisibility: internal
+        defaultBranch: main
+        # Uses backend GitLab integration token from app-config
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+    text:
+      - title: Next Steps
+        content: |
+          ## 🎉 Your Express API has been created!
+          
+          ### Repository
+          Your code is now available at: **${{ steps.publish.output.remoteUrl }}**
+          
+          ### What's Included
+          - ✅ Express.js API with TypeScript
+          - ✅ Health check endpoints for Kubernetes
+          - ✅ Dockerfile for containerization
+          - ✅ GitLab CI pipeline (images pushed to GitLab Container Registry)
+          - ✅ Helm chart for Kubernetes/OpenShift
+          - ✅ Jest tests configured
+          - ✅ ESLint + Prettier configured
+          - ✅ Backstage catalog-info.yaml
+          
+          ### Getting Started
+          1. Clone the repository
+          2. Run `npm install`
+          3. Start development: `npm run dev`
+          4. Visit http://localhost:3000
+

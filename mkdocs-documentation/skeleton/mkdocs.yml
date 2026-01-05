@@ -1,0 +1,66 @@
+site_name: ${{ values.name }}
+site_description: ${{ values.description }}
+
+# Repository information (optional - for "Edit on GitLab" links)
+# repo_url: https://gitlab.example.com/your-group/${{ values.name }}
+# edit_uri: -/edit/main/docs/
+
+# Theme configuration
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: ${{ values.primaryColor }}
+      accent: ${{ values.primaryColor }}
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: ${{ values.primaryColor }}
+      accent: ${{ values.primaryColor }}
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+# Extensions
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+
+# Plugins
+plugins:
+  - search
+  - techdocs-core
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+{%- if values.includeApiDocs %}
+  - API Reference:
+      - Overview: reference/api.md
+{%- endif %}
+{%- if values.includeChangelog %}
+  - Changelog: changelog.md
+{%- endif %}
+

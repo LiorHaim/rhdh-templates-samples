@@ -1,0 +1,21 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  title: ${{ values.name }}
+  description: ${{ values.description }}
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    gitlab.com/project-slug: ${{ values.repoOwner }}/${{ values.repoName }}
+  tags:
+    - documentation
+    - mkdocs
+  links:
+    - url: https://www.mkdocs.org/
+      title: MkDocs Documentation
+      icon: docs
+spec:
+  type: documentation
+  lifecycle: production
+  owner: ${{ values.owner }}
+

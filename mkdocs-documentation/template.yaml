@@ -76,29 +76,6 @@ spec:
           type: boolean
           description: Add a changelog page
           default: true
-        primaryColor:
-          title: Primary Color
-          type: string
-          description: Primary theme color for the documentation site
-          enum:
-            - indigo
-            - blue
-            - teal
-            - green
-            - deep-orange
-            - red
-            - pink
-            - purple
-          enumNames:
-            - Indigo (Default)
-            - Blue
-            - Teal
-            - Green
-            - Deep Orange
-            - Red
-            - Pink
-            - Purple
-          default: indigo
 
   steps:
     - id: fetch-template
@@ -112,7 +89,6 @@ spec:
           owner: ${{ parameters.owner }}
           includeApiDocs: ${{ parameters.includeApiDocs }}
           includeChangelog: ${{ parameters.includeChangelog }}
-          primaryColor: ${{ parameters.primaryColor }}
           repoOwner: ${{ parameters.gitlabGroup }}
           repoName: ${{ parameters.name }}
 

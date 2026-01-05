@@ -10,7 +10,7 @@ A Backstage/RHDH scaffolder template that creates a documentation site using MkD
 - ✅ **Full-text Search** - Built-in search functionality
 - ✅ **Code Highlighting** - Syntax highlighting with copy button
 - ✅ **GitLab CI/CD** - Automatic validation and building
-- ✅ **Customizable** - Choose colors, sections, and structure
+- ✅ **Customizable** - Optional sections (API docs, changelog)
 
 ## What It Creates
 
@@ -74,14 +74,13 @@ techdocs:
 | `gitlabGroup` | enum | Yes | GitLab group for the repository |
 | `includeApiDocs` | boolean | No | Include API reference section (default: true) |
 | `includeChangelog` | boolean | No | Include changelog page (default: true) |
-| `primaryColor` | enum | No | Theme color (default: indigo) |
 
 ## Usage
 
 1. Navigate to **Create** in your RHDH instance
 2. Select **MkDocs Documentation Site**
 3. Fill in the documentation details
-4. Choose optional sections and theme color
+4. Choose optional sections (API Reference, Changelog)
 5. Click **Create**
 
 The template will:
@@ -192,27 +191,16 @@ pages:
     - main
 ```
 
-## Theme Customization
-
-### Available Colors
-
-The template supports these Material theme colors:
-- `indigo` (default)
-- `blue`
-- `teal`
-- `green`
-- `deep-orange`
-- `red`
-- `pink`
-- `purple`
-
-### Additional Customization
+## Customization
 
 Edit `mkdocs.yml` to customize:
+- Theme colors (primary/accent)
 - Logo and favicon
 - Navigation structure
 - Additional plugins
 - Custom CSS
+
+> **Note:** TechDocs in Backstage applies its own styling for consistency. Theme colors will only be visible when viewing docs locally or deploying standalone.
 
 ## Troubleshooting
 
@@ -237,3 +225,4 @@ TechDocs may render slightly differently. Use `mkdocs-techdocs-core` plugin loca
 ## License
 
 Apache-2.0
+

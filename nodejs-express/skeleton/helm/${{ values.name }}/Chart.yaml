@@ -1,0 +1,16 @@
+apiVersion: v2
+name: ${{ values.name }}
+description: Helm chart for ${{ values.name }} Express API
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+keywords:
+  - express
+  - nodejs
+  - typescript
+  - microservice
+
+maintainers:
+  - name: ${{ values.owner }}
+

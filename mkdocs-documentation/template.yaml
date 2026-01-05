@@ -1,0 +1,169 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: mkdocs-documentation
+  title: MkDocs Documentation Site
+  description: |
+    Create a documentation site using MkDocs with Material theme.
+    Automatically integrates with Backstage TechDocs for seamless documentation browsing.
+  tags:
+    - documentation
+    - mkdocs
+    - techdocs
+    - recommended
+  links:
+    - url: https://www.mkdocs.org/
+      title: MkDocs Documentation
+      icon: docs
+    - url: https://squidfunk.github.io/mkdocs-material/
+      title: Material for MkDocs
+      icon: web
+spec:
+  owner: platform-team
+  type: documentation
+
+  parameters:
+    - title: Documentation Information
+      required:
+        - name
+        - description
+        - owner
+      properties:
+        name:
+          title: Documentation Name
+          type: string
+          description: Unique name for this documentation site (lowercase, hyphenated)
+          pattern: '^[a-z][a-z0-9-]*$'
+          ui:autofocus: true
+        description:
+          title: Description
+          type: string
+          description: A brief description of what this documentation covers
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        owner:
+          title: Owner
+          type: string
+          description: Select the team that owns this documentation
+          ui:field: MyGroupsPicker
+
+    - title: Repository Configuration
+      required:
+        - gitlabGroup
+      properties:
+        gitlabGroup:
+          title: GitLab Group
+          type: string
+          description: Select the GitLab group where the repository will be created
+          # NOTE: Update these to match your GitLab groups
+          enum:
+            - development
+            - rhdh-qe
+          enumNames:
+            - development
+            - rhdh-qe
+
+    - title: Documentation Options
+      properties:
+        includeApiDocs:
+          title: Include API Reference Section
+          type: boolean
+          description: Add a sample API reference section
+          default: true
+        includeChangelog:
+          title: Include Changelog
+          type: boolean
+          description: Add a changelog page
+          default: true
+        primaryColor:
+          title: Primary Color
+          type: string
+          description: Primary theme color for the documentation site
+          enum:
+            - indigo
+            - blue
+            - teal
+            - green
+            - deep-orange
+            - red
+            - pink
+            - purple
+          enumNames:
+            - Indigo (Default)
+            - Blue
+            - Teal
+            - Green
+            - Deep Orange
+            - Red
+            - Pink
+            - Purple
+          default: indigo
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          includeApiDocs: ${{ parameters.includeApiDocs }}
+          includeChangelog: ${{ parameters.includeChangelog }}
+          primaryColor: ${{ parameters.primaryColor }}
+          repoOwner: ${{ parameters.gitlabGroup }}
+          repoName: ${{ parameters.name }}
+
+    - id: publish
+      name: Publish to GitLab
+      action: publish:gitlab
+      input:
+        # NOTE: Change the host to your GitLab instance URL
+        repoUrl: gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io?owner=${{ parameters.gitlabGroup }}&repo=${{ parameters.name }}
+        repoVisibility: internal
+        defaultBranch: main
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: View TechDocs
+        icon: docs
+        entityRef: ${{ steps.register.output.entityRef }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+    text:
+      - title: Next Steps
+        content: |
+          ## 📚 Your Documentation Site is Ready!
+          
+          ### Repository
+          Your documentation is now available at: **${{ steps.publish.output.remoteUrl }}**
+          
+          ### What's Included
+          - ✅ MkDocs configuration with Material theme
+          - ✅ Sample documentation structure
+          - ✅ Backstage TechDocs integration
+          - ✅ GitLab CI for building docs
+          - ✅ Search functionality
+          
+          ### View Your Docs
+          Navigate to the entity in Backstage and click the **Docs** tab to view your documentation.
+          
+          ### Getting Started
+          1. Clone the repository
+          2. Install MkDocs: `pip install mkdocs-material`
+          3. Run locally: `mkdocs serve`
+          4. Edit files in the `docs/` folder
+          5. Push changes - TechDocs will auto-update!
+

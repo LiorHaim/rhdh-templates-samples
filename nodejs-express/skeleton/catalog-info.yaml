@@ -1,0 +1,21 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  title: ${{ values.name }}
+  description: ${{ values.description }}
+  annotations:
+    gitlab.com/project-slug: ${{ values.repoOwner }}/${{ values.repoName }}
+  tags:
+    - nodejs
+    - express
+    - typescript
+    - microservice
+  links:
+    - url: https://expressjs.com/
+      title: Express.js Documentation
+      icon: docs
+spec:
+  type: service
+  lifecycle: experimental
+  owner: ${{ values.owner }}

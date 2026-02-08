@@ -102,7 +102,7 @@ spec:
           ui:field: GitLabGroupPicker ## USE THE GitLab Group Picker Plugin - https://github.com/LiorHaim/gitlab-fe-selector
           ui:options:
             allowedHosts:
-              - gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io
+              - gitlab-gitlab.apps.cluster-wq5pm.dynamic.redhatworkshops.io
             requestUserCredentials:
               secretsKey: USER_OAUTH_TOKEN
           ui:help: "Owner is the Group or Username (e.g. 'my-org'). Repository is the project name (e.g. 'service-a')."

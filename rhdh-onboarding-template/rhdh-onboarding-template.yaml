@@ -154,6 +154,12 @@ spec:
           ui:help: |
              Enter the label value used on your OpenShift resources.
              Example: If your Deployment has `labels: { 'backstage.io/kubernetes-id': 'my-app' }`, enter `my-app` here.
+
+        kubernetesNamespace:
+          title: OpenShift Namespace
+          type: string
+          description: "The namespace where the workloads run."
+          ui:help: "Enter the OpenShift namespace/project (e.g. 'my-app-prod')."
         
         jiraProjectKey:
           title: Jira Project Key
@@ -179,6 +185,12 @@ spec:
           description: Link via Label Selector.
           ui:help: "Use this to match multiple apps (e.g. `app.kubernetes.io/name=my-service`)."
 
+      # If kubernetesId is provided, kubernetesNamespace becomes required
+      dependencies:
+        kubernetesId:
+          required:
+            - kubernetesNamespace
+
   steps:
     - id: fetch-base
       name: Render Catalog Info
@@ -202,6 +214,7 @@ spec:
           apiPath: ${{ parameters.apiPath }}
           # Logic: Pass the raw value. If empty, the skeleton will skip the annotation.
           kubernetesId: ${{ parameters.kubernetesId }}
+          kubernetesNamespace: ${{ parameters.kubernetesNamespace }}
           jiraProjectKey: ${{ parameters.jiraProjectKey }}
           jfrogImage: ${{ parameters.jfrogImage }}
           argocdAppName: ${{ parameters.argocdAppName }}
@@ -227,7 +240,7 @@ spec:
           
           **API:**
           - Register API: `${{ "Yes" if parameters.registerApi else "No" }}`
-          ${{ "- Type: " + parameters.apiType + "\n          - Path: " + parameters.apiPath if parameters.registerApi else "" }}
+          ${{ "- Type: " + parameters.apiType + "\n - Path: " + parameters.apiPath if parameters.registerApi else "" }}
           **Integrations:**
           - **OpenShift Resources:** `${{ parameters.kubernetesId if parameters.kubernetesId else "N/A" }}`
           - **Jira:** `${{ parameters.jiraProjectKey if parameters.jiraProjectKey else "N/A" }}`

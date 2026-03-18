@@ -228,7 +228,6 @@ spec:
         repoUrl: ${{ parameters.repoUrl }}
         token: ${{ secrets.USER_OAUTH_TOKEN }}
         branchName: rhdh-onboarding-${{ parameters.componentName }}-${{ '' | now('YYYYMMDDHHmm') }}
-        commitMessage: "chore: add catalog-info.yaml for RHDH onboarding"
         title: "RHDH Onboarding: Add catalog-info.yaml"
         removeSourceBranch: true
         description: |

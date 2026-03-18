@@ -227,7 +227,7 @@ spec:
       input:
         repoUrl: ${{ parameters.repoUrl }}
         token: ${{ secrets.USER_OAUTH_TOKEN }}
-        branchName: rhdh-onboarding-${{ parameters.componentName }}-${{ '' | now('YYYYMMDDHHmm') }}
+        branchName: rhdh-onboarding-${{ parameters.componentName }}
         title: "RHDH Onboarding: Add catalog-info.yaml"
         removeSourceBranch: true
         description: |

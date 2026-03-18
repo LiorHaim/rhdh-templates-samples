@@ -16,6 +16,7 @@ spec:
     - title: Component Details
       required:
         - componentName
+        - description
         - componentType
         - owner
         - lifecycle
@@ -225,8 +226,11 @@ spec:
       action: publish:gitlab:merge-request
       input:
         repoUrl: ${{ parameters.repoUrl }}
-        branchName: rhdh-onboarding-${{ parameters.componentName }}
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        branchName: rhdh-onboarding-${{ parameters.componentName }}-${{ '' | now('YYYYMMDDHHmm') }}
+        commitMessage: "chore: add catalog-info.yaml for RHDH onboarding"
         title: "RHDH Onboarding: Add catalog-info.yaml"
+        removeSourceBranch: true
         description: |
           This MR adds the `catalog-info.yaml` file to onboard this service to Red Hat Developer Hub.
           
@@ -241,6 +245,7 @@ spec:
           **API:**
           - Register API: `${{ "Yes" if parameters.registerApi else "No" }}`
           ${{ "- Type: " + parameters.apiType + "\n - Path: " + parameters.apiPath if parameters.registerApi else "" }}
+          
           **Integrations:**
           - **OpenShift Resources:** `${{ parameters.kubernetesId if parameters.kubernetesId else "N/A" }}`
           - **Jira:** `${{ parameters.jiraProjectKey if parameters.jiraProjectKey else "N/A" }}`

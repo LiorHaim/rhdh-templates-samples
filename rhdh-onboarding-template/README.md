@@ -21,8 +21,8 @@ This template provides a seamless "wizard" experience that:
 ## ✨ Features & User Experience
 
 ### 1. "Bring Your Own Repo"
-Instead of scaffolding new code, this template uses the `RepoUrlPicker` to let developers select an *existing* GitLab repository.
-- **Security**: It uses the user's own token to list only repositories they have permission to access.
+Instead of scaffolding new code, this template uses the `GitLabGroupPicker` to let developers select an *existing* GitLab repository.
+- **Security**: It uses the user's own OAuth token to create the Merge Request under their identity, ensuring proper access control.
 - **Convenience**: No copy-pasting URLs manually.
 
 ### 2. Flexible Integrations (Everything is Optional)
@@ -41,13 +41,13 @@ To keep the Catalog organized, we support:
 ### 4. Smart Defaults
 We reduce friction by calculating defaults where possible:
 - **Lifecycle**: Defaults to `production`.
-- **Merge Request**: The change is proposed via a Merge Request (created by the RHDH bot), allowing the team to review the metadata before it becomes "standard".
+- **Merge Request**: The change is proposed via a Merge Request (created under the user's own credentials), allowing the team to review the metadata before it becomes "standard".
 
 ## 📂 Repository Structure
 
 ```
 .
-├── template.yaml            # The main Scaffolder template definition
+├── rhdh-onboarding-template.yaml  # The main Scaffolder template definition
 └── skeleton/
     └── catalog-info.yaml    # The component definition file (Jinja2 template)
 ```

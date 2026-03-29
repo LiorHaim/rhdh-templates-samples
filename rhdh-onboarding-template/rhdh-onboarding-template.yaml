@@ -9,7 +9,7 @@ metadata:
     - gitlab
     - onboarding
 spec:
-  owner: rhdh-team
+  owner: group:default/rhdh-team
   type: service
 
   parameters:
@@ -99,7 +99,6 @@ spec:
           title: Repository Location
           type: string
           description: Select the GitLab repository to onboard.
-          #ui:field: RepoUrlPicker
           ui:field: GitLabGroupPicker ## USE THE GitLab Group Picker Plugin - https://github.com/LiorHaim/gitlab-fe-selector
           ui:options:
             allowedHosts:
@@ -140,7 +139,7 @@ spec:
                   title: API Definition Path
                   type: string
                   description: "Path to the API definition file in your repo (e.g., openapi/spec.yaml)."
-                  pattern: '^[^/].*\.(yaml|yml|json|graphql|proto)$'
+                  pattern: '^[a-zA-Z0-9_./-]+\.(yaml|yml|json|graphql|proto)$'
                   ui:help: "Relative path, no leading slash (e.g., api/openapi.yaml)"
               required:
                 - apiType

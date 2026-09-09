@@ -113,7 +113,6 @@ spec:
         path: /notifications
         headers:
           Content-Type: application/json
-          Authorization: Bearer development
         body:
           recipients:
             type: broadcast
@@ -133,7 +132,6 @@ spec:
         path: /notifications
         headers:
           Content-Type: application/json
-          Authorization: Bearer development
         body:
           recipients:
             type: entity
@@ -154,7 +152,6 @@ spec:
         path: /notifications
         headers:
           Content-Type: application/json
-          Authorization: Bearer development
         body:
           recipients:
             type: entity

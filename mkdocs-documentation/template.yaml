@@ -59,10 +59,10 @@ spec:
           # NOTE: Update these to match your GitLab groups
           enum:
             - development
-            - rhdh-qe
+            - rhdh
           enumNames:
             - development
-            - rhdh-qe
+            - rhdh
 
     - title: Documentation Options
       properties:
@@ -97,7 +97,7 @@ spec:
       action: publish:gitlab
       input:
         # NOTE: Change the host to your GitLab instance URL
-        repoUrl: gitlab-gitlab.apps.cluster-rbbgt.dynamic.redhatworkshops.io?owner=${{ parameters.gitlabGroup }}&repo=${{ parameters.name }}
+        repoUrl: gitlab-gitlab.apps.cluster-hbw6r.dyn.redhatworkshops.io?owner=${{ parameters.gitlabGroup }}&repo=${{ parameters.name }}
         repoVisibility: internal
         defaultBranch: main
 

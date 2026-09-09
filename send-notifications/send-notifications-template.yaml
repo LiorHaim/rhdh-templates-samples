@@ -113,7 +113,7 @@ spec:
         path: /notifications
         headers:
           Content-Type: application/json
-          Authorization: Bearer my-secret-token-12345
+          Authorization: Bearer development
         body:
           recipients:
             type: broadcast
@@ -133,7 +133,7 @@ spec:
         path: /notifications
         headers:
           Content-Type: application/json
-          Authorization: Bearer my-secret-token-12345
+          Authorization: Bearer development
         body:
           recipients:
             type: entity
@@ -154,7 +154,7 @@ spec:
         path: /notifications
         headers:
           Content-Type: application/json
-          Authorization: Bearer my-secret-token-12345
+          Authorization: Bearer development
         body:
           recipients:
             type: entity

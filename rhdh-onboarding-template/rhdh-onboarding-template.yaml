@@ -102,7 +102,7 @@ spec:
           ui:field: GitLabGroupPicker ## USE THE GitLab Group Picker Plugin - https://github.com/LiorHaim/gitlab-fe-selector
           ui:options:
             allowedHosts:
-              - gitlab-gitlab.apps.cluster-wq5pm.dynamic.redhatworkshops.io
+              - gitlab-gitlab.apps.cluster-hbw6r.dyn.redhatworkshops.io
             requestUserCredentials:
               secretsKey: USER_OAUTH_TOKEN
           ui:help: "Owner is the Group or Username (e.g. 'my-org'). Repository is the project name (e.g. 'service-a')."
@@ -207,7 +207,7 @@ spec:
           repoUrl: ${{ parameters.repoUrl }}
           componentType: ${{ parameters.componentType }}
           # Remove the host part and get the slug
-          repoSlug: ${{ parameters.repoUrl | replace("gitlab-gitlab.apps.cluster-wq5pm.dynamic.redhatworkshops.io?owner=", "") | replace("&repo=", "/") }}
+          repoSlug: ${{ parameters.repoUrl | replace("gitlab-gitlab.apps.cluster-hbw6r.dyn.redhatworkshops.io?owner=", "") | replace("&repo=", "/") }}
           # API Configuration
           registerApi: ${{ parameters.registerApi }}
           apiType: ${{ parameters.apiType }}

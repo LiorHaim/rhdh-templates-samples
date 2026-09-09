@@ -9,7 +9,7 @@ metadata:
   annotations:
     # GitLab Integration
     gitlab.com/project-slug: ${{ values.repoSlug }}
-    backstage.io/source-location: url:https://gitlab-gitlab.apps.cluster-wq5pm.dynamic.redhatworkshops.io/${{ values.repoSlug }}
+    backstage.io/source-location: url:https://gitlab-gitlab.apps.cluster-hbw6r.dyn.redhatworkshops.io/${{ values.repoSlug }}
     
     # Kubernetes Integration
     {%- if values.kubernetesId %}
@@ -68,7 +68,7 @@ metadata:
   description: API definition for ${{ values.componentName }}
   annotations:
     gitlab.com/project-slug: ${{ values.repoSlug }}
-    backstage.io/source-location: url:https://gitlab-gitlab.apps.cluster-wq5pm.dynamic.redhatworkshops.io/${{ values.repoSlug }}
+    backstage.io/source-location: url:https://gitlab-gitlab.apps.cluster-hbw6r.dyn.redhatworkshops.io/${{ values.repoSlug }}
   tags:
     - on-boarded
     {%- if values.tags %}
